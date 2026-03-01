@@ -79,6 +79,12 @@ air.log
 *.swo
 *~
 
+# Environment
+.env
+.envrc
+.envrc.local
+.envrc.prod
+
 # OS
 .DS_Store
 Thumbs.db
@@ -89,6 +95,8 @@ test_image.png
 uploaded_*.jpg
 uploaded_*.png
 **/test_images/
+**/.claude/
+.mcp.json
 *.pkg
 
 # Working notes and documentation

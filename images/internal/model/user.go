@@ -6,6 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
+// Key type constants
+const (
+	KeyTypeTest  = "test"
+	KeyTypeLive  = "live"
+	KeyTypeAdmin = "admin"
+)
+
 // User represents a user in the system with an API key
 type User struct {
 	ID               uuid.UUID

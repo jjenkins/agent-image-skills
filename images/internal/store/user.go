@@ -125,6 +125,84 @@ func (s *UserStore) FindByEmail(ctx context.Context, email string) (*model.User,
 	return user, nil
 }
 
+// FindByID retrieves a user by their UUID
+func (s *UserStore) FindByID(ctx context.Context, userID string) (*model.User, error) {
+	query := `
+		SELECT id, api_key, email, key_type, plan, stripe_customer_id, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`
+
+	user := &model.User{}
+	err := s.db.QueryRowContext(ctx, query, userID).Scan(
+		&user.ID,
+		&user.APIKey,
+		&user.Email,
+		&user.KeyType,
+		&user.Plan,
+		&user.StripeCustomerID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to query user: %w", err)
+	}
+
+	return user, nil
+}
+
+// ListAll retrieves all users with pagination
+func (s *UserStore) ListAll(ctx context.Context, limit int, offset int) ([]*model.User, int64, error) {
+	// Get total count
+	var total int64
+	err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM users`).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count users: %w", err)
+	}
+
+	query := `
+		SELECT id, api_key, email, key_type, plan, stripe_customer_id, created_at, updated_at
+		FROM users
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`
+
+	rows, err := s.db.QueryContext(ctx, query, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to query users: %w", err)
+	}
+	defer rows.Close()
+
+	var users []*model.User
+	for rows.Next() {
+		user := &model.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.APIKey,
+			&user.Email,
+			&user.KeyType,
+			&user.Plan,
+			&user.StripeCustomerID,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan user: %w", err)
+		}
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("error iterating users: %w", err)
+	}
+
+	return users, total, nil
+}
+
 // UpdatePlan updates a user's plan (for upgrades/downgrades)
 func (s *UserStore) UpdatePlan(ctx context.Context, userID string, plan string) error {
 	query := `

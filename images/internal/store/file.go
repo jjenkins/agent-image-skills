@@ -103,6 +103,27 @@ func (s *FileStore) SoftDelete(ctx context.Context, ulid string) error {
 	return nil
 }
 
+// SoftDeleteAllByUserID soft-deletes all non-deleted files for a user
+func (s *FileStore) SoftDeleteAllByUserID(ctx context.Context, userID string) (int64, error) {
+	query := `
+		UPDATE files
+		SET deleted_at = NOW()
+		WHERE user_id = $1 AND deleted_at IS NULL
+	`
+
+	result, err := s.db.ExecContext(ctx, query, userID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to soft delete user files: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("failed to check rows affected: %w", err)
+	}
+
+	return rowsAffected, nil
+}
+
 // FindByUserID retrieves files for a user with pagination and sorting
 // The sortOrder parameter must be validated by the caller (service layer) to prevent SQL injection
 func (s *FileStore) FindByUserID(ctx context.Context, userID string, limit int, offset int, sortOrder string) ([]*model.File, int64, error) {

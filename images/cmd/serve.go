@@ -9,11 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jjenkins/labnocturne/images/internal/handlers"
+	mcpinternal "github.com/jjenkins/labnocturne/images/internal/mcp"
 	"github.com/jjenkins/labnocturne/images/internal/middleware"
 	"github.com/jjenkins/labnocturne/images/internal/ratelimit"
 	"github.com/jjenkins/labnocturne/images/internal/store"
+	mcpserver "github.com/mark3labs/mcp-go/server"
 	"github.com/spf13/cobra"
 	"github.com/stripe/stripe-go/v76"
 )
@@ -134,6 +137,23 @@ var serveCmd = &cobra.Command{
 		app.Get("/key/retrieve", handlers.RetrieveKeyHandler(db, baseURL))
 		app.Post("/webhook", handlers.WebhookHandler(db, baseURL))
 		app.Get("/success", handlers.SuccessHandler())
+
+		// MCP (Model Context Protocol) server - SSE transport
+		mcpDeps := &mcpinternal.Deps{
+			DB:          db,
+			S3Client:    s3Client,
+			S3Bucket:    s3Bucket,
+			BaseURL:     baseURL,
+			RateLimiter: rateLimiter,
+		}
+		mcpSrv := mcpinternal.NewMCPServer(mcpDeps)
+		sseServer := mcpserver.NewSSEServer(mcpSrv,
+			mcpserver.WithBaseURL(baseURL),
+			mcpserver.WithStaticBasePath("/mcp"),
+			mcpserver.WithSSEContextFunc(mcpinternal.SSEContextFunc(db)),
+		)
+		app.Get("/mcp/sse", adaptor.HTTPHandler(sseServer.SSEHandler()))
+		app.Post("/mcp/messages", adaptor.HTTPHandler(sseServer.MessageHandler()))
 
 		log.Printf("Starting Lab Nocturne Images API on :%s", port)
 		if err := app.Listen(":" + port); err != nil {
