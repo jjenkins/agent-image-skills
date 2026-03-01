@@ -1,3 +1,8 @@
+---
+name: stats
+description: "View storage usage and quota statistics for Lab Nocturne. Triggered by /stats or naturally (e.g. 'how much storage am I using')."
+---
+
 # Usage Statistics
 
 View storage usage and quota statistics for your Lab Nocturne Images account.

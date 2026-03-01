@@ -1,3 +1,8 @@
+---
+name: generate-key
+description: "Generate a test API key for Lab Nocturne. Triggered by /generate-key or naturally (e.g. 'get me an API key')."
+---
+
 # Generate Test API Key
 
 Generate a test API key for the Lab Nocturne Images API.

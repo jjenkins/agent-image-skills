@@ -1,3 +1,8 @@
+---
+name: upload
+description: "Upload an image to Lab Nocturne and get a CDN URL. Triggered by /upload <path> or naturally (e.g. 'upload this screenshot')."
+---
+
 # Upload Image to Lab Nocturne
 
 Upload an image file to the Lab Nocturne Images API and return the CDN URL.

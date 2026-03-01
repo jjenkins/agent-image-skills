@@ -1,3 +1,8 @@
+---
+name: files
+description: "List uploaded files from Lab Nocturne with pagination and sorting. Triggered by /files or naturally (e.g. 'show my images')."
+---
+
 # List Files
 
 List uploaded files from your Lab Nocturne Images account with pagination and sorting.

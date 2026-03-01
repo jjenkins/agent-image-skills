@@ -1,3 +1,8 @@
+---
+name: delete
+description: "Soft-delete an image from Lab Nocturne. Triggered by /delete <image_id> or naturally (e.g. 'delete that image')."
+---
+
 # Delete Image
 
 Soft-delete an image from your Lab Nocturne Images account.
