@@ -52,6 +52,10 @@ php/composer.lock
 php/composer.phar
 php/.phpunit.cache/
 
+# Unrelated projects
+flex/
+framework/
+
 # Binaries
 /bin/
 **/bin/
