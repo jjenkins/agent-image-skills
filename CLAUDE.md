@@ -77,7 +77,9 @@ Skills are in `skills/` as symlinks. Each skill is a `SKILL.md` with YAML frontm
 
 Skills auto-detect `$LABNOCTURNE_API_KEY` env var. If unset, they generate a temporary test key (7-day retention, 10MB limit). Skills use `$LABNOCTURNE_BASE_URL` if set.
 
-The non-prefixed skills (`upload`, `files`, `stats`, `delete`, `generate-key`) are legacy duplicates from the old repo name.
+Shared auth logic (API key resolution, base URL, common error codes) lives in `.agents/skills/references/auth.md` and is referenced by all skills.
+
+The non-prefixed skills (`upload`, `files`, `stats`, `delete`, `generate-key`) are legacy aliases that redirect to their `image-*` counterparts.
 
 ## API Key Types
 
